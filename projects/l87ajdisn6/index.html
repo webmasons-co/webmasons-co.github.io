@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Marsplay</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.1/css/bulma.min.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/style_mobile.css">
+		<link rel="stylesheet" href="owlcarousel/assets/owl.carousel.min.css">
+		<link rel="stylesheet" href="owlcarousel/assets/owl.theme.default.min.css">
+
+		<!-- GRT Youtube Plugin CSS -->
+        <link rel="stylesheet" href="css/grt-youtube-popup.css">
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="owlcarousel/owl.carousel.min.js"></script>
+		<script src="https://cdn.rawgit.com/leafo/sticky-kit/v1.1.2/jquery.sticky-kit.min.js"></script>
+		<script src="js/jquery.disablescroll.min.js"></script>
+		<script src = "https://cdn.rawgit.com/lodash/lodash/4.17.4/dist/lodash.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js"></script>
+		<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+		<script>
+			//FORM
+			function validateForm(email) {
+			    var x = email;
+			    var atpos = x.indexOf("@");
+			    var dotpos = x.lastIndexOf(".");
+			    if (atpos<1 || dotpos<atpos+2 || dotpos+2>=x.length) {
+			        swal("Error", "Please enter a valid e-mail", "error");
+			        return false;
+			    }
+			    return true;
+			}
+		    function handleSubmitNaked(email){
+		    	if (!validateForm(email)){
+		    		return null;
+		    	}
+		    	var request = $.ajax({
+				  url: "https://marsplay.co/api/mail",
+				  method: "POST",
+				  data: JSON.stringify({
+                    "email":email,
+                    "TIme": new Date()
+                  })
+				});
+				 
+				request.done(function( msg ) {
+				  swal("Success", "Submitted! Check your Mail", "success");
+				});
+				 
+				request.fail(function( jqXHR, textStatus ) {
+				  swal("Oops", "Something went wrong, please try again", "error");
+				});
+		    	//alert("shit");
+		    	
+		    }
+
+		    function popUpForm(){
+		    	swal({
+				  text: 'Enter e-mail address.',
+				  content: "input",
+				  button: {
+				    text: "Email",
+				    closeModal: false,
+				  },
+				})
+				.then(name => {
+				  if (!name) throw null;
+				  if (!validateForm(name)){
+		    		throw null;
+		    	  }
+
+		    	  fetch('https://marsplay.co/api/mail', {
+		                method: 'POST',
+		                headers: {
+		                    'Accept': 'application/json',
+		                    'Content-Type': 'application/json',
+		                },
+		                body: JSON.stringify({
+		                    "email":name,
+		                    "TIme": new Date()
+		                })
+		            }).catch(error => {throw null;})
+				  
+				})
+				.then(results => {
+				  return results;
+				})
+				.then(json => {
+				 
+				  swal("Success", "Submitted! Check your Mail", "success");
+				})
+				.catch(err => {
+				  if (err) {
+				  	console.log(err);
+				    swal("Oh noes!", "The request failed!", "error");
+				  } else {
+				    swal.stopLoading();
+				    swal.close();
+				  }
+				});
+		    }
+			
+
+			$(window).ready(function() {
+			    $("#cover").fadeOut(2000);
+
+			});
+			//SMOOTH SCROLLING
+			$(document).ready(function(){
+			  // Add smooth scrolling to all links
+			  window.scrollBy(0, -111100);
+				$("a").on('click', function(event) {
+
+					// Make sure this.hash has a value before overriding default behavior
+					if (this.hash !== "") {
+						// Prevent default anchor click behavior
+						event.preventDefault();
+
+						// Store hash
+						var hash = this.hash;
+
+						// Using jQuery's animate() method to add smooth page scroll
+						// The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+						$('html, body').animate({
+							scrollTop: $(hash).offset().top
+						}, 800, function(){
+
+							// Add hash (#) to URL when done scrolling (default click behavior)
+							window.location.hash = hash;
+						});
+					} // End if
+				});
+			});
+			$(document).ready(function(){
+				$(".owl-carousel").owlCarousel({
+    responsiveClass:true,
+    responsive:{
+        0:{
+            items:1,
+            nav:false,
+            touchDrag:true,
+        },
+         600:{
+            items:3,
+            nav:false
+        },
+    }
+				});
+			});
+
+			//SCROLL ANIMATION
+			$(document).ready(function(){
+				$("#badmaash").stick_in_parent();
+
+				var start = document.getElementById('second').getBoundingClientRect().top;
+				var end = document.getElementById('second').getBoundingClientRect().bottom-start;
+				var difference = Math.abs(start - end);
+				var target = $('.accordian_item');
+				var single_length = difference/(target.length);
+				var bonds = [];
+				var ticker = start;
+				var current_slice = 0
+				$('.accordian_item').each(function( index ){
+					bonds.push({"start":ticker,"end":ticker+single_length});
+					ticker = ticker+single_length;
+				});
+				
+				console.log(bonds);
+				$( window ).scroll(function(event) {
+					
+					var currentOffset = window.pageYOffset;
+					_.forEach(bonds, function(value, key) {
+						
+						if (value.start<=currentOffset && value.end>=currentOffset){
+							if (current_slice==key){
+
+							}else{
+								current_image = $(target[current_slice]).children('img').attr("src").replace("-white.png", ".png");
+								next_image = $(target[key]).children('img').attr("src").replace(".png","-white.png",);
+								$("#anim_image").attr("src","media/images/accordian/mobile/"+key+".jpg");
+								$(target[current_slice]).children('img').attr("src",current_image);
+								$(target[key]).children('img').attr("src",next_image);
+								$(target[current_slice]).removeClass("accordian_item active_accordian_item").addClass( "accordian_item" );
+
+								$(target[key]).removeClass("accordian_item").addClass( "accordian_item active_accordian_item" );
+								current_slice = key;
+							}
+						}
+					});
+				});
+			});
+			
+
+		</script>
+	</head>
+	<body>
+	<div id="cover"><img src="media/images/loader.jpg"/></div>
+
+	<div class="desktop is-hidden-mobile">
+
+		<div class = "offwhite">
+
+		</div>
+		<div class = "offwhite2 is-hidden-mobile">
+			
+		</div>
+		<div class = "offwhite3 is-hidden-mobile" style="background: url(media/images/clothes-1839935_960_720.jpg) !important;">
+			
+		</div>
+		<section class="first">
+			<div class = "menu">
+				<div class = "logo">
+					<img src = "media/images/logo.png" />
+				</div>
+				<div class = "menu_items">
+					<div class = "menu_container">
+						<div class="menu_text"><a href="https://medium.com/@marsplay" target="_blank">BLOG</a></div>
+						<div class="menu_text"><a href="contactus.html" target="_blank">CONTACT</a></div>
+						<div class="menu_text"><a href="about.html" target="_blank">ABOUT</a></div>
+					</div>
+				</div>
+			</div>
+			<div class = "hero">
+				<div class = "hero_left">
+					<div class = "hero_text">
+						<p class="t1 is-unselectable">Create new trends with things you love.</p>
+						<p class="t2 is-unselectable">Make money when friends shop your style.</p>
+					</div>
+					<div class = "hero_cta">
+						<div class = "video_button">
+							<div class = "video_play">
+								<a><img class="youtube-link" youtubeid="251161301" src="media/images/video.png"/></a>
+								
+							</div>
+							<p class = "video_text">
+								How it Works
+							</p>
+						</div>
+						<div class = "store_buttons">
+							<div class= "android"><img src="media/images/play.png"/></div>
+							<div class= "ios" onclick="popUpForm()"><img src="media/images/app.png"/></div>
+						</div>
+						<div class="next_page" >
+							<a href="#second">
+								<img src="media/images/rectangle-21.png" />
+							</a>
+						</div>
+					</div>
+					
+				</div>
+				<div class = "hero_right">
+					<div class = "phone_cover">
+					<div class = "home_screen_phone">
+						<br><br>
+						<div class = "phone_screen">
+							<img src="media/images/homephone.jpg"/>
+						</div>
+						<br>
+						<div class = "oval"></div>
+					</div>	
+					</div>
+					
+				</div>
+			</div>
+		</section>
+		<div class="clean"></div>
+		<section class="second" id= "second">
+			
+			<div id= "badmaash">
+				<p class = "flaunt">Time to flaunt your true style</p>
+				<div class = "divide"></div>
+				<div class = "two_cups">
+					<div class = "cup_one">
+						<div class = "phone_cover_anim">
+							<div class = "home_screen_phone_anim">
+								<br><br>
+								<div class = "phone_screen_anim">
+									<img id = "anim_image" src="media/images/accordian/mobile/0.jpg"/>
+								</div>
+								<div class="oval_gap"></div>
+								<div class = "oval_anim"></div>
+							</div>	
+						</div>
+					</div>
+
+					<div class = "cup_two">
+						<div class="accordian" id= "accordian">
+							<div class = "accordian_item active_accordian_item">
+								<img class="accordian_logo" src="media/images/accordian/discover-white.png"/>
+								<p class="accordian_big_text">Discover</p>
+								<div class="accordian_small_text">Browse outfits and collections curated<br> by friends and fashion experts.
+								<br><br>
+								Easily discover products as worn by <br>people you love.
+								</div>
+							</div>
+							<div class = "accordian_item">
+								<img class="accordian_logo" src="media/images/accordian/shop.png"/>
+								<p class="accordian_big_text">Shop</p>
+								<div class="accordian_small_text">Explore shoppable style stories.<br>
+								Purchase styles with a SINGLE click.<br><br>
+
+								Never spend hours in finding a <br>look 
+								that you spotted on someone!
+								</div>
+							</div><div class = "accordian_item">
+								<img class="accordian_logo" src="media/images/accordian/curate.png"/>
+								<p class="accordian_big_text">Curate</p>
+								<div class="accordian_small_text">Pick styles you love as you browse.<br>
+								Create collections based on style,<br>
+								season, mood, colors and a lot more.<br>
+
+								Your collections on Marsplay are<br>
+								discoverable and shoppable.
+								</div>
+							</div><div class = "accordian_item">
+								<img class="accordian_logo" src="media/images/accordian/earn.png"/>
+								<p class="accordian_big_text">Earn</p>
+								<div class="accordian_small_text">Feeling amazing in an outfit you<br> created?<br>
+								Earn every time people purchase<br>
+								from the styles you create or curate.
+								</div>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div class="clean"></div>
+		
+		<div class="clean"></div>
+
+		<section class="third" id= "third">
+			<p class = "flaunt" style="margin-top: 50px;">Customer Reviews</p>
+			<div class = "divide"></div>
+			<div class="slip_slide">
+				<div class="carousel_container owl-carousel">
+					<div class ="testimonial">
+						<div class="testimonial_cover">
+							<img class = "testimonial_image" src = "media/images/testimonials/vijeta.png"/>
+							<p class = "testimonial_name">Vijeta Verma</p>
+							<p class = "testimonial_description">“I see Marsplay as the only platform that enables people to find their own unique style, develop it and share it with the world. I love that it’s about the people rather than the brands”</p>
+						</div>
+					</div>
+					<div class ="testimonial">
+						<div class="testimonial_cover">
+							<img class = "testimonial_image" src = "media/images/testimonials/devansh.png"/>
+							<p class = "testimonial_name">Devansh Kamboj</p>
+							<p class = "testimonial_description">“Collaborating with Marsplay as an Early Influencer for their app was an incredibly fun experience. These people are building a truly unprecedented way to shop online and I am super excited for it.”</p>
+						</div>
+					</div>
+					<div class ="testimonial">
+						<div class="testimonial_cover">
+							<img class = "testimonial_image" src = "media/images/testimonials/renu.png"/>
+							<p class = "testimonial_name">Renu Bedha</p>
+							<p class = "testimonial_description">“I strongly felt a need for a platform that empowers creators. With Marsplay’s focus on supporting creators, creating styles is fun and exciting again.”</p>
+						</div>
+					</div>
+					<div class ="testimonial">
+						<div class="testimonial_cover">
+							<img class = "testimonial_image" src = "media/images/testimonials/stuti.png"/>
+							<p class = "testimonial_name">Stuti</p>
+							<p class = "testimonial_description">“I feel excited that finally there is a platform where I can actually tag the products in my outfit. I have always wanted to do it because my followers ask me where I shop from!”</p>
+						</div>
+					</div>
+					<div class ="testimonial">
+						<div class="testimonial_cover">
+							<img class = "testimonial_image" src = "media/images/testimonials/rohan.png"/>
+							<p class = "testimonial_name">Rohan Kwatra</p>
+							<p class = "testimonial_description">“Marsplay's step to put up a Creator Studio has made it so easy for creators like us to create more authentic content. I love how the app focuses on discovering and sharing your true style.”</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div style="height: 89vh;"></div>
+		<section class = "last">
+			<div class="interlude">
+
+				<img class = "interlude_backdrop" src="media/images/flippa.jpg" />
+				<div class = "phone_cover_foot">
+					<div class = "home_screen_phone_foot">
+						<br><br>
+						<div class = "phone_screen_foot">
+							<img src="media/images/homephone.png"/>
+						</div>
+						<br>
+						<div class = "oval_foot"></div>
+					</div>	
+				</div>
+				<div class = "interlude_stuff">
+				<div class = "interlude_text">
+					<p style="float: left;display: block;width: 50%;">Discover.<br>Curate.</p>
+					<p style="text-align: right;float: right;display: block;width: 50%;">Shop.<br>Earn.</p>
+				</div>
+				<p class="cta_text">Download the app</p>
+
+				<div class = "interlude_buttons">
+					<div class= "interlude_android"><img src="media/images/play2.png"/></div>
+					<div class= "interlude_ios"><img src="media/images/app2.png"/></div>
+				</div>
+				</div>
+			</div>
+			<div class = "web_footer">
+				<div class = "globe">
+					<img src = "media/images/world_map.jpg"/>
+				</div>
+				<div class="form_collect">
+					<p class="form_collect_text">Subscribe to news letter</p>
+					<div class="form_collect_formitself">
+						<input type="text" id = "submit_lower" placeholder="Email Address" />
+						<button type="button" onclick="handleSubmitNaked($('#submit_lower').val());">Submit</button>
+					</div>
+					<br><br>
+					<div class="container_social">
+						<div class="form_collect_social_links">
+							<a href="https://www.instagram.com/marsplayco/"><img src="media/images/insta.png" /></a>
+							<a href="https://www.facebook.com/marsplay.co/"><img src="media/images/facebook.png" /></a>
+							<a href="https://twitter.com/marsplayco?lang=en"><img src="media/images/twitter.png" /></a>
+							<a href="https://medium.com/@marsplay"><img src="media/images/medium.png" /></a>
+
+						</div>
+					</div>
+				</div>
+				<div class="last_stand">
+					<div class = "pvt_ltd">
+						<p>@2017 MARSPLAY INTERNET PVT. LTD</p>
+					</div>
+					<div class = "coco">
+						<div><a href="contactus.html" style="color: #1a1a1a !important;">CONTACT</a></div>
+						<div><a href="privacypolicy.html" style="color: #1a1a1a !important;">PRIVACY</a></div>
+						<div><a href="about.html" style="color: #1a1a1a !important;">ABOUT</a></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		</div>
+
+
+
+
+
+
+		<div class="mobile is-hidden-desktop">
+		<div class="gradient">
+		<header class="header-here">
+			<div id="header-mobile">
+			<div class="header-logo">
+				<img src="media/mobile-images/logo1.png" alt="placeholder+image">
+				</div>
+				<div class="header-menu"  onclick="openNav()">
+				<div class="header-ff-m">
+					<div class="header-ff"></div>
+				</div>
+				
+				<div class="header-ss-m">
+					<div class="header-ss"></div>
+				</div>
+			
+				</div>
+
+					<div id="myNav" class="overlay">
+					<div class="mm-logo">
+						<img src="media/mobile-images/mm.png">
+					</div>
+					  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+					  <div id="navv" class="overlay-content">
+					    <a target="_blank" class="o-blog" onclick="closeNav()" href="https://medium.com/@marsplay">Blog</a>
+					    <a class="o-about" onclick="closeNav()" href="#first-tier">About</a>
+					    <a class="o-contact" onclick="closeNav()" href="#fifth-tier">Contact</a>
+					    
+					  </div>
+					</div>
+				<!-- <nav>
+				<a href="#" id="menu-icon"></a>
+					<ul>
+						<li><a href="#nowhere" title="Lorum ipsum dolor sit amet" class="current">Lorem</a></li>
+						<li><a href="#nowhere" title="Aliquam tincidunt mauris eu risus">Aliquam</a></li>
+						<li><a href="#nowhere" title="Morbi in sem quis dui placerat ornare">Morbi</a></li>
+						<li><a href="#nowhere" title="Praesent dapibus, neque id cursus faucibus">Praesent</a></li>
+						<li><a href="#nowhere" title="Pellentesque fermentum dolor">Pellentesque</a></li>
+					</ul>
+				</nav> -->
+			</div>
+		</header>
+		<!-- End of Header Mobile -->
+
+		<section class="back-gradient">
+		<div class="contain-head">
+		<p class="back-head">Create new trends with things you love.</p><br>
+		<p class="back-data">Make money when friends shop your style.</p>
+		</div>
+		<div class="phone-margin">
+		<div class = "phone_cover_foot1">
+					<div class = "home_screen_phone_foot1">
+						<br><br>
+						<div class = "phone_screen_foot1">
+							<img src="media/images/homephone.png"/>
+						</div>
+						<br>
+						<div class = "oval_foot1"></div>
+					</div>	
+					</div>
+				</div>
+			
+		</section>
+		</div>
+
+		<section id="first-tier" class="first-tier">
+		<div class="first-data-ini">
+			<p class="first-data">Time to flaunt<br>your true style</p>
+		</div>
+		<div class="divider"></div>
+		<div class="first-icon">
+			<img src="media/mobile-images/search1.png" alt="placeholder+image">
+		</div>
+		<div class="first-data2">Discover</div>
+		<div class="first-data3">
+			<p id="irst-data3-a">Browse outfits and collections curated by friends and fashion experts.</p>
+			<p id="irst-data3-b">Easily discover products as worn by people you love.</p>
+		</div>
+		<div class = "phone_cover1">
+					<div class = "home_screen_phone1">
+						<br><br>
+						<div class = "phone_screen1">
+							<img src="media/images/accordian/mobile/0.jpg"/>
+						</div>
+						<br>
+						<div class = "oval1"></div>
+					</div>	
+					</div>
+			
+		</section>
+		<section class="second-tier">
+		<div class="second-data-ini">
+		</div>
+		<div class="second-icon">
+			<img src="media/mobile-images/shop1.png" alt="placeholder+image">
+		</div>
+		<div class="first-data2">Shop</div>
+		<div class="first-data3">
+			<p id="irst-data3-a">Explore shoppable style stories.
+Purchase styles with a SINGLE click.</p>
+			<p id="irst-data3-b">Never spend hours in finding a look 
+that you spotted on someone!</p>
+		</div>
+		<div class = "phone_cover1">
+					<div class = "home_screen_phone1">
+						<br><br>
+						<div class = "phone_screen1">
+							<img src="media/images/accordian/mobile/1.jpg"/>
+						</div>
+						<br>
+						<div class = "oval1"></div>
+					</div>	
+					</div>
+			
+		</section>
+		<section class="first-tier">
+		<div class="second-data-ini">
+		</div>
+		<div class="second-icon">
+			<img src="media/mobile-images/curate.png" alt="placeholder+image">
+		</div>
+		<div class="first-data2">Curate</div>
+		<div class="first-data3">
+			<p id="irst-data3-a">Pick styles you love as you browse.
+Create collections based on style,
+season, mood, colors and a lot more.</p>
+			<p id="irst-data3-b">Your collections on Marsplay are
+discoverable and shoppable.
+
+</p>
+		</div>
+		<div class = "phone_cover1">
+					<div class = "home_screen_phone1">
+						<br><br>
+						<div class = "phone_screen1">
+							<img src="media/images/accordian/mobile/2.jpg"/>
+						</div>
+						<br>
+						<div class = "oval1"></div>
+					</div>	
+					</div>
+			
+		</section>
+		<section class="second-tier">
+		<div class="second-data-ini">
+		</div>
+		<div class="second-icon">
+			<img src="media/mobile-images/earn.png" alt="placeholder+image">
+		</div>
+		<div class="first-data2">Earn</div>
+		<div class="first-data3">
+			<p id="irst-data3-a">Browse outfits and collections
+curated by friends and fashion experts.
+</p>
+			<p id="irst-data3-b">Easily discover products 
+as worn by people you love.</p>
+		</div>
+		<div class = "phone_cover1">
+					<div class = "home_screen_phone1">
+						<br><br>
+						<div class = "phone_screen1">
+							<img src="media/images/accordian/mobile/3.jpg"/>
+						</div>
+						<br>
+						<div class = "oval1"></div>
+					</div>	
+					</div>
+			
+		</section>
+
+		<section class="third-m" id= "third">
+			<div class="third-data-ini">
+			<p class="third-data">Customer Reviews</p>
+		</div>
+			<div class="divider"></div>
+			<div class="slip_slide-m">
+				<div class="carousel_container-m owl-carousel">
+					<div class ="testimonial-m">
+						<div class="testimonial_cover-m">
+							<img class = "testimonial_image-m" src = "media/images/testimonials/vijeta.png"/>
+							<p class = "testimonial_name-m">Vijeta Verma</p>
+							<p class = "testimonial_description-m">I see Marsplay as the only platform that enables people to find their own unique style, develop it and share it with the world. I love that it’s about the people rather than the brands</p>
+						</div>
+					</div>
+					<div class ="testimonial-m">
+						<div class="testimonial_cover-m">
+							<img class = "testimonial_image-m" src = "media/images/testimonials/devansh.png"/>
+							<p class = "testimonial_name-m">Devansh Kamboj</p>
+							<p class = "testimonial_description-m">Collaborating with Marsplay as an Early Influencer for their app was an incredibly fun experience. These people are building a truly unprecedented way to shop online and I am super excited for it.</p>
+						</div>
+					</div>
+					<div class ="testimonial-m">
+						<div class="testimonial_cover-m">
+							<img class = "testimonial_image-m" src = "media/images/testimonials/renu.png"/>
+							<p class = "testimonial_name-m">Renu Bedha</p>
+							<p class = "testimonial_description-m">I strongly felt a need for a platform that empowers creators. With Marsplay’s focus on supporting creators, creating styles is fun and exciting again.</p>
+						</div>
+					</div>
+					<div class ="testimonial-m">
+						<div class="testimonial_cover-m">
+							<img class = "testimonial_image-m" src = "media/images/testimonials/stuti.png"/>
+							<p class = "testimonial_name-m">Stuti</p>
+							<p class = "testimonial_description-m">I feel excited that finally there is a platform where I can actually tag the products in my outfit. I have always wanted to do it because my followers ask me where I shop from!</p>
+						</div>
+					</div>
+					<div class ="testimonial-m">
+						<div class="testimonial_cover-m">
+							<img class = "testimonial_image-m" src = "media/images/testimonials/rohan.png"/>
+							<p class = "testimonial_name-m">Rohan Kwatra</p>
+							<p class = "testimonial_description-m">Marsplay's step to put up a Creator Studio has made it so easy for creators like us to create more authentic content. I love how the app focuses on discovering and sharing your true style.</p>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</section>
+		<section class="fourth-tier">
+		<div class="fourth-margin">
+			<div class="fourth-parts">
+			<div class="fourth-inner-division">
+				    <div id="div1">Shop.
+					</div>
+					<div id="div2">Earn.
+					</div>
+					</div>
+					<div class="fourth-inner-division2">
+					<div id="div3">Discover.
+					</div>
+					<div id="div4">Curate.
+					</div>
+					</div>
+
+			</div>
+			</div>
+			<div class="fourth-data1"> Download the app</div>
+			<div class="fourth-apple">
+			<div class="fourth-apple-int">
+				<img src="media/mobile-images/apple.png">
+			</div>
+			</div>
+			<div class="fourth-android">
+			<div class="fourth-android-int">
+				<img src="media/mobile-images/android.png">
+			</div>
+			</div>
+			<div class="fourth-pic">
+				<div class="fourth-pic-inc">
+				<div class="fourth-pic-inc-in">
+				<div class="fourth-image">
+				<img src="media/images/homephone.png">
+				<div class="fourth-oval-outer">
+				<div class="fourth-oval">
+					
+				</div>
+				</div>
+				
+				
+				</div>
+				</div>
+			</div>
+			</div>
+		</section>
+
+		<section id="fifth-tier" class="fifth-tier">
+		<div class="fifth-start">
+		<div class="fifth-inside-color">
+		<div class="fifth-data-ini">
+			<p class="fifth-data">Subscribe to<br>news letter</p>
+			<div class="fifth-dotted-map">
+				<div class="fifth-email"></div>
+				<div class="fifth-button-margin">
+				<div class="fifth-button">
+				<div class="fifth-sub-margin">
+				<p class="fifth-sub"> SUBSCRIBE</p></div>
+				</div> </div>
+			</div>
+		</div>
+			</div>
+			</div>
+		</section>
+
+		<section class="final">
+			<!-- <div class="all-icons">
+				<div id="isnta-m"></div>
+				<div id="fb-m"></div>
+				<div id="tweet-m"></div>
+				<div id="medium-m"></div>
+			</div> -->
+			<div id="menu-outer">
+  <div class="table">
+    <ul id="horizontal-list">
+      <a target="_blank" href="https://www.instagram.com/marsplayco/"><li id="oo"><img src="media/mobile-images/instao.png"></li></a>
+      <a target="_blank" href="https://www.facebook.com/marsplay.co/"><li id="ooo"><img src="media/mobile-images/fbo.png"></li></a>
+      <a target="_blank" href="https://twitter.com/marsplayco?lang=en"><li id="oooo"><img src="media/mobile-images/tweeto.png"></li></a>
+      <a target="_blank" href="https://medium.com/@marsplay"><li id="ooooo"><img src="media/mobile-images/mediumo.png"></li></a>
+    </ul>
+  </div>
+</div>
+<div class="final-data">
+<div class="final-margin">
+	<div class="final-cont">CONTACT</div>
+	<div class="final-abt">PRIVACY</div>
+	<div class="final-prv">ABOUT</div></div>
+</div>
+
+<div class="final-end-margin">
+	<div class="final-foot">@2017 MARSPLAY INTERNET PVT.LTD</div>
+	</div>
+		</section>
+		</div>
+
+		 <!-- GRT Youtube Popup -->
+        <script src="js/grt-youtube-popup.js"></script>
+
+        <!-- Initialize GRT Youtube Popup plugin -->
+        <script>
+            // Demo video 1
+            $(".youtube-link").grtyoutube({
+                autoPlay:true,
+                theme: "dark"
+            });
+
+            // Demo video 2
+            $(".youtube-link-dark").grtyoutube({
+                autoPlay:false,
+                theme: "light"
+            });
+        </script>
+
+        <script>
+function openNav() {
+    document.getElementById("myNav").style.height = "100%";
+}
+
+function closeNav() {
+    document.getElementById("myNav").style.height = "0%";
+}
+</script>
+
+
+<script>
+	$(function(){
+  $("#navv a").click(function(e){
+    e.preventDefault();
+    $('html,body').scrollTo(this.hash,this.hash); 
+  });
+});
+</script>
+<script type="text/javascript" src="js/jquery.scrollTo.js"></script>
+
+
+		<div id="preloadedImages1"></div>
+		<div id="preloadedImages2"></div>
+		<div id="preloadedImages3"></div>
+		<div id="preloadedImages4"></div>
+		<div id="phone1"></div>
+		<div id="phone2"></div>
+		<div id="phone3"></div>
+
+	</body>
+</html>
